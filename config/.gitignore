@@ -1,0 +1,5 @@
+# Ignore any config files that might contain secrets
+*.local.yaml
+*.local.yml
+.env
+secrets.*

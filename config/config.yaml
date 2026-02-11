@@ -1,0 +1,37 @@
+# NHL ML Prediction - Main Configuration
+# Override values via environment variables where noted
+
+# Paths (relative to project root)
+paths:
+  raw_data: "data/raw"
+  processed_data: "data/processed"
+  features: "data/features"
+  models: "models"
+
+# Data ingestion (Section 3)
+ingestion:
+  api_base_url: "https://api-web.nhle.com"
+  rate_limit_delay_sec: 0.5  # delay between requests to respect rate limits
+  retry_attempts: 3
+  retry_backoff_factor: 2
+
+# Training (Section 7)
+training:
+  train_seasons: ["20182019", "20192020", "20202021", "20212022"]
+  val_season: "20222023"
+  test_season: "20232024"
+  scale_pos_weight: "auto"  # or set manually for class imbalance
+  random_seed: 42
+
+# API (Section 10)
+api:
+  model_version: "v1"
+  cold_start_min_games: 5  # Option A: require N games; return insufficient_history if fewer
+  default_threshold: 0.5   # for binary_prediction
+
+# Retraining (Section 12)
+retrain:
+  performance_floor_roc_auc: 0.55
+  drift_tolerance_zscore: 3.0
+  test_degradation_tolerance_pct: 0.05  # e.g. 5% drop in test ROC-AUC = no promote
+  schedule: "monthly"  # or "weekly", "on_demand"

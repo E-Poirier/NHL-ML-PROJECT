@@ -1,14 +1,18 @@
 # Data (large files, don't commit)
-data/raw/
-data/processed/
-data/features/
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/features/*
+!data/features/.gitkeep
 *.csv
 *.parquet
 *.db
 *.sqlite
 
-# Models (artifacts can be large; add models/ to version small configs if desired)
-models/
+# Models (artifacts can be large)
+models/*
+!models/.gitkeep
 *.pkl
 *.joblib
 *.h5
