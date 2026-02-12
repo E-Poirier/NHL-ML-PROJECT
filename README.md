@@ -35,6 +35,7 @@ pip install -r requirements.txt
 |------|---------|
 | Ingest data | `./scripts/run_ingestion.sh` or `python -m src.data_ingestion` |
 | Validate | `./scripts/run_validation.sh` or `python -m src.validation` |
+| Features | `./scripts/run_feature_engineering.sh` or `python -m src.feature_engineering` |
 | Train | `python -m src.train` |
 | Start API | `uvicorn api.main:app --reload` |
 | Demo predict | `python scripts/demo_predict.py` |

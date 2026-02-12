@@ -23,6 +23,15 @@ training:
   scale_pos_weight: "auto"  # or set manually for class imbalance
   random_seed: 42
 
+# Feature engineering (Section 5)
+features:
+  min_games_history: 5       # Cold start: exclude players with fewer (Option A)
+  goals_window: 3
+  assists_window: 5
+  rolling_window: 5
+  volatility_window: 5
+  fatigue_days: 7
+
 # API (Section 10)
 api:
   model_version: "v1"
