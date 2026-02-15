@@ -37,7 +37,7 @@ pip install -r requirements.txt
 | Validate | `./scripts/run_validation.sh` or `python -m src.validation` |
 | Features | `./scripts/run_feature_engineering.sh` or `python -m src.feature_engineering` |
 | Train | `./scripts/run_train.sh` or `python -m src.train` |
-| Start API | `uvicorn api.main:app --reload` |
+| Start API | `uvicorn api.main:app --reload` (from project root) |
 | Demo predict | `python scripts/demo_predict.py` |
 
 ## Config
