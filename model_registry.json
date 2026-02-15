@@ -1,4 +1,14 @@
 {
-  "current_production": null,
-  "versions": []
+  "current_production": "v1",
+  "versions": [
+    {
+      "version": "v1",
+      "path": "models/v1",
+      "val_roc_auc": 0.7177023466752871,
+      "test_roc_auc": 0.7180078533606129,
+      "val_f1": 0.5952146635502522,
+      "test_f1": 0.5822522381027171,
+      "trained_at": "2026-02-15T11:03:09.425550"
+    }
+  ]
 }
