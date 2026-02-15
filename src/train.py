@@ -81,6 +81,7 @@ def train(
     features_path: str | Path | None = None,
     output_dir: str | Path | None = None,
     model_version: str | None = None,
+    update_registry: bool = True,
 ) -> str:
     """
     Train model and save to models/vN/.
@@ -222,23 +223,24 @@ def train(
     with open(output_dir / "feature_importance.json", "w") as f:
         json.dump(importance, f, indent=2)
 
-    # Update registry
-    registry_path = root / "model_registry.json"
-    registry = json.loads(registry_path.read_text()) if registry_path.exists() else {"current_production": None, "versions": []}
-    version_entry = {
-        "version": model_version,
-        "path": str(output_dir.relative_to(root)),
-        "val_roc_auc": val_metrics["roc_auc"],
-        "test_roc_auc": test_metrics["roc_auc"],
-        "val_f1": val_metrics["f1"],
-        "test_f1": test_metrics["f1"],
-        "trained_at": datetime.now().isoformat(),
-    }
-    if model_version not in [v.get("version") for v in registry.get("versions", [])]:
-        registry.setdefault("versions", []).append(version_entry)
-    registry["current_production"] = model_version
-    with open(registry_path, "w") as f:
-        json.dump(registry, f, indent=2)
+    # Update registry (unless caller will handle promotion, e.g. retrain.py)
+    if update_registry:
+        registry_path = root / "model_registry.json"
+        registry = json.loads(registry_path.read_text()) if registry_path.exists() else {"current_production": None, "versions": []}
+        version_entry = {
+            "version": model_version,
+            "path": str(output_dir.relative_to(root)),
+            "val_roc_auc": val_metrics["roc_auc"],
+            "test_roc_auc": test_metrics["roc_auc"],
+            "val_f1": val_metrics["f1"],
+            "test_f1": test_metrics["f1"],
+            "trained_at": datetime.now().isoformat(),
+        }
+        if model_version not in [v.get("version") for v in registry.get("versions", [])]:
+            registry.setdefault("versions", []).append(version_entry)
+        registry["current_production"] = model_version
+        with open(registry_path, "w") as f:
+            json.dump(registry, f, indent=2)
 
     logger.info("Saved to %s. Val ROC-AUC: %.4f, Test ROC-AUC: %.4f",
                 output_dir, val_metrics["roc_auc"], test_metrics["roc_auc"])

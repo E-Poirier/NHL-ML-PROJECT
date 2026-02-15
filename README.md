@@ -39,6 +39,8 @@ pip install -r requirements.txt
 | Train | `./scripts/run_train.sh` or `python -m src.train` |
 | Start API | `uvicorn api.main:app --reload` (from project root) |
 | Demo predict | `python scripts/demo_predict.py` |
+| Monitoring | `./scripts/run_monitoring.sh` or `python -m monitoring.monitor` |
+| Retrain | `./scripts/run_retrain.sh` or `python -m src.retrain` (add `--skip-ingestion` to reuse data) |
 
 ## Config
 

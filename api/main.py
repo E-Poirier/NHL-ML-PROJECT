@@ -37,7 +37,14 @@ def _load_app_state():
     with open(root / "config" / "config.yaml") as f:
         config = yaml.safe_load(f)
     api_cfg = config.get("api", {})
-    model_version = api_cfg.get("model_version", "v1")
+    # Prefer registry current_production; fallback to config
+    registry_path = root / "model_registry.json"
+    if registry_path.exists():
+        with open(registry_path) as f:
+            registry = json.load(f)
+        model_version = registry.get("current_production") or api_cfg.get("model_version", "v1")
+    else:
+        model_version = api_cfg.get("model_version", "v1")
     models_dir = root / config["paths"]["models"]
     model_dir = models_dir / model_version
 

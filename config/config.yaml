@@ -7,6 +7,7 @@ paths:
   processed_data: "data/processed"
   features: "data/features"
   models: "models"
+  monitoring: "monitoring"
 
 # Data ingestion (Section 3)
 ingestion:
@@ -37,6 +38,11 @@ api:
   model_version: "v1"
   cold_start_min_games: 5  # Option A: require N games; return insufficient_history if fewer
   default_threshold: 0.5   # for binary_prediction
+
+# Monitoring (Section 11)
+monitoring:
+  recent_days: 30    # Window for drift and prediction distribution
+  eval_days: 7       # Window for daily performance evaluation
 
 # Retraining (Section 12)
 retrain:
