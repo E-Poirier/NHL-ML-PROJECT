@@ -1,0 +1,23 @@
+# Git and env
+.git
+.gitignore
+.venv
+venv
+env
+__pycache__
+
+# Data we don't need in the API image
+data/raw
+data/processed
+
+# Dev and tests
+tests
+notebooks
+*.md
+.pytest_cache
+.coverage
+htmlcov
+
+# IDE
+.idea
+.vscode

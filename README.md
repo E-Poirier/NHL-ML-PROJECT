@@ -65,6 +65,7 @@ Splits are time-based (by season). Class imbalance is handled with `scale_pos_we
 ├── models/          # Model artifacts (v1/, v2/, ...)
 ├── scripts/         # run_ingestion.sh, run_daily.sh, run_retrain.sh, run_monitoring.sh, crontab.example
 ├── tests/           # Unit, contract, and integration tests
+├── dashboard/       # Streamlit UI
 └── notebooks/       # EDA, SHAP analysis
 ```
 
@@ -93,6 +94,7 @@ pip install -r requirements.txt
 | Train      | `./scripts/run_train.sh` or `python -m src.train`              |
 | Start API  | `uvicorn api.main:app --reload` (from project root)            |
 | Demo predict | `python scripts/demo_predict.py`                             |
+| Dashboard | `./scripts/run_dashboard.sh` or `streamlit run dashboard/app.py` |
 | Monitoring | `./scripts/run_monitoring.sh` or `python -m monitoring.monitor` |
 | Retrain    | `./scripts/run_retrain.sh` or `python -m src.retrain`          |
 
@@ -106,6 +108,18 @@ pip install -r requirements.txt
 
 - **SHAP analysis** (`notebooks/shap_analysis.ipynb`): feature importance and explainability. Run the first code cell to `%pip install shap`, restart the kernel, then run all. Use the project `.venv` as the Jupyter kernel so `xgboost` is available: from project root, `python -m ipykernel install --user --name=nhl-ml --display-name "Python (NHL ML .venv)"`, then in Jupyter choose **Kernel → Change kernel → "Python (NHL ML .venv)"**.
 - **EDA** (`notebooks/eda.ipynb`): exploratory data analysis.
+
+---
+
+## Docker
+
+Build and run the API in a container. **Requires** `models/` and `data/features/` (run the pipeline first).
+
+```bash
+docker compose up --build
+```
+
+API at http://localhost:8000. Override port in `docker-compose.yml` if needed. To point the dashboard at a different API host: `API_URL=http://host:8000 streamlit run dashboard/app.py`.
 
 ---
 
