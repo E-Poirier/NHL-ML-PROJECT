@@ -21,8 +21,12 @@ nhl-api-py>=3.1.0
 # Config
 pyyaml>=6.0
 
-# Optional: SHAP for explainability
-# shap>=0.43
+# Explainability (Section 8.3)
+shap>=0.43
 
 # Testing
 pytest>=7.0
+
+# Notebooks (SHAP, EDA)
+jupyter>=1.0
+matplotlib>=3.7

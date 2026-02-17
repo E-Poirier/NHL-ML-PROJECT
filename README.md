@@ -63,7 +63,7 @@ Splits are time-based (by season). Class imbalance is handled with `scale_pos_we
 ├── api/             # FastAPI prediction endpoint
 ├── monitoring/      # Drift detection, daily evaluation
 ├── models/          # Model artifacts (v1/, v2/, ...)
-├── scripts/         # run_ingestion.sh, run_retrain.sh, run_monitoring.sh, etc.
+├── scripts/         # run_ingestion.sh, run_daily.sh, run_retrain.sh, run_monitoring.sh, crontab.example
 ├── tests/           # Unit, contract, and integration tests
 └── notebooks/       # EDA, SHAP analysis
 ```
@@ -98,7 +98,14 @@ pip install -r requirements.txt
 
 **Retrain options:** `--skip-ingestion` to reuse existing raw data; `--force-promotion` to promote regardless of criterion; `--check-only` to check if retrain is triggered.
 
-**Scheduling (cron):** `scripts/run_daily.sh` runs ingestion → validation → features → monitoring. Use `scripts/crontab.example` as a template; edit the path, create `logs/`, then `crontab -e` to install.
+**Scheduling (cron):** `scripts/run_daily.sh` runs ingestion → validation → features → monitoring. Copy the two cron lines from `scripts/crontab.example`, replace `/path/to/project` with your project path, run `mkdir -p logs`, then paste into `crontab -e` and save. Daily job at 6 AM; monthly retrain on the 1st at 9 AM.
+
+---
+
+## Notebooks
+
+- **SHAP analysis** (`notebooks/shap_analysis.ipynb`): feature importance and explainability. Run the first code cell to `%pip install shap`, restart the kernel, then run all. Use the project `.venv` as the Jupyter kernel so `xgboost` is available: from project root, `python -m ipykernel install --user --name=nhl-ml --display-name "Python (NHL ML .venv)"`, then in Jupyter choose **Kernel → Change kernel → "Python (NHL ML .venv)"**.
+- **EDA** (`notebooks/eda.ipynb`): exploratory data analysis.
 
 ---
 
