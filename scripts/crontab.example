@@ -1,0 +1,11 @@
+# NHL ML Project - Cron schedule example
+#
+# 1. Replace /path/to/project with your project path (both lines)
+# 2. Create logs dir: mkdir -p logs
+# 3. Install: crontab -e and paste these lines
+
+# Daily at 6 AM: ingestion, validation, features, monitoring
+0 6 * * * cd /path/to/project && .venv/bin/bash scripts/run_daily.sh >> /path/to/project/logs/cron.log 2>&1
+
+# First of month at 9 AM: retrain (uses existing data, promotion by criterion)
+0 9 1 * * cd /path/to/project && .venv/bin/python -m src.retrain --skip-ingestion >> /path/to/project/logs/cron.log 2>&1
