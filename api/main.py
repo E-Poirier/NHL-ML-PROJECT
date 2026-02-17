@@ -6,10 +6,12 @@ Returns P(≥1 point | player plays) for given player_id, game_id.
 """
 
 import json
+import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 
 import joblib
+import requests
 import numpy as np
 import pandas as pd
 import yaml
@@ -94,15 +96,73 @@ def health(request: Request):
     return {"status": "ok", "model_version": state["model_version"] if state else None}
 
 
+# In-memory cache for NHL API lookups (avoids repeated calls)
+_player_cache: dict[int, str] = {}
+_game_cache: dict[int, str] = {}
+_CACHE_MAX = 500
+
+NHL_BASE = "https://api-web.nhle.com/v1"
+
+
+def _fetch_player_name(player_id: int) -> str:
+    if player_id in _player_cache:
+        return _player_cache[player_id]
+    try:
+        r = requests.get(f"{NHL_BASE}/player/{player_id}/landing", timeout=5)
+        if r.status_code == 200:
+            d = r.json()
+            first = d.get("firstName", {})
+            last = d.get("lastName", {})
+            name = f"{first.get('default', '')} {last.get('default', '')}".strip()
+            if name:
+                if len(_player_cache) >= _CACHE_MAX:
+                    _player_cache.pop(next(iter(_player_cache)))
+                _player_cache[player_id] = name
+                return name
+    except Exception:
+        pass
+    return str(player_id)
+
+
+def _fetch_game_info(game_id: int) -> str:
+    if game_id in _game_cache:
+        return _game_cache[game_id]
+    try:
+        r = requests.get(f"{NHL_BASE}/gamecenter/{game_id}/landing", timeout=5)
+        if r.status_code == 200:
+            d = r.json()
+            away = d.get("awayTeam", {}).get("abbrev", "?")
+            home = d.get("homeTeam", {}).get("abbrev", "?")
+            date = d.get("gameDate", "")
+            info = f"{away} @ {home} {date}"
+            if len(_game_cache) >= _CACHE_MAX:
+                _game_cache.pop(next(iter(_game_cache)))
+            _game_cache[game_id] = info
+            return info
+    except Exception:
+        pass
+    return str(game_id)
+
+
 @app.get("/sample")
-def sample(request: Request, limit: int = 30):
-    """Return sample (player_id, game_id) pairs from the feature table for browsing."""
+def sample(request: Request, limit: int = 30, expand: bool = False):
+    """Return sample (player_id, game_id) pairs from the feature table. Use expand=1 for player/game names."""
     state = request.app.state.model_state
     if not state:
         raise HTTPException(status_code=503, detail="Model not loaded")
     df = state["features_df"].reset_index()
-    sample_df = df[["player_id", "game_id"]].drop_duplicates().head(limit)
-    return sample_df.to_dict(orient="records")
+    unique = df[["player_id", "game_id"]].drop_duplicates()
+    n = min(limit, len(unique))
+    sample_df = unique.sample(n=n, random_state=42)
+    rows = sample_df.to_dict(orient="records")
+
+    if expand:
+        for row in rows:
+            row["player_name"] = _fetch_player_name(int(row["player_id"]))
+            row["game_info"] = _fetch_game_info(int(row["game_id"]))
+            time.sleep(0.15)  # rate limit
+
+    return rows
 
 
 @app.post("/predict", response_model=PredictResponse)

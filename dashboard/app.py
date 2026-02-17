@@ -33,18 +33,19 @@ def main():
 
     with st.expander("Browse sample player-games", expanded=False):
         try:
-            resp = requests.get(f"{API_URL}/sample?limit=30", timeout=5)
+            with st.spinner("Loading names from NHL API (first time may take ~15s)..."):
+                resp = requests.get(f"{API_URL}/sample?limit=30&expand=true", timeout=90)
             if resp.status_code == 200:
                 samples = resp.json()
                 if samples:
-                    cols = st.columns([2, 2, 1])
-                    cols[0].write("**Player ID**")
-                    cols[1].write("**Game ID**")
+                    cols = st.columns([3, 4, 1])
+                    cols[0].write("**Player**")
+                    cols[1].write("**Game**")
                     cols[2].write("")
                     for row in samples:
-                        c0, c1, c2 = st.columns([2, 2, 1])
-                        c0.write(row["player_id"])
-                        c1.write(row["game_id"])
+                        c0, c1, c2 = st.columns([3, 4, 1])
+                        c0.write(row.get("player_name", row["player_id"]))
+                        c1.write(row.get("game_info", row["game_id"]))
                         if c2.button("Use", key=f"use_{row['player_id']}_{row['game_id']}"):
                             st.session_state["player_id"] = row["player_id"]
                             st.session_state["game_id"] = row["game_id"]
