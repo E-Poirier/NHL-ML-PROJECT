@@ -164,6 +164,7 @@ def run_feature_drift(
 
     if features_path:
         df = pd.read_parquet(features_path)
+        feature_names = [c for c in df.columns if c not in META_COLS]
     else:
         df, feature_names = _load_features_data(config)
         feature_names = [c for c in feature_names if c in df.columns]
