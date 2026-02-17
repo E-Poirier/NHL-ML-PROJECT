@@ -94,6 +94,17 @@ def health(request: Request):
     return {"status": "ok", "model_version": state["model_version"] if state else None}
 
 
+@app.get("/sample")
+def sample(request: Request, limit: int = 30):
+    """Return sample (player_id, game_id) pairs from the feature table for browsing."""
+    state = request.app.state.model_state
+    if not state:
+        raise HTTPException(status_code=503, detail="Model not loaded")
+    df = state["features_df"].reset_index()
+    sample_df = df[["player_id", "game_id"]].drop_duplicates().head(limit)
+    return sample_df.to_dict(orient="records")
+
+
 @app.post("/predict", response_model=PredictResponse)
 def predict(request: Request, payload: PredictRequest):
     """

@@ -1,6 +1,6 @@
 """
 Simple dashboard for NHL Point Prediction API.
-Calls /predict and /health endpoints.
+Calls /predict, /health, and /sample endpoints.
 """
 
 import os
@@ -27,12 +27,41 @@ def main():
         st.error("Cannot reach API. Start it with: `uvicorn api.main:app --reload` or `docker compose up`.")
         return
 
+    # Browse: fetch sample and allow "Use" to populate form
+    default_player = st.session_state.get("player_id", 8464989)
+    default_game = st.session_state.get("game_id", 2018020090)
+
+    with st.expander("Browse sample player-games", expanded=False):
+        try:
+            resp = requests.get(f"{API_URL}/sample?limit=30", timeout=5)
+            if resp.status_code == 200:
+                samples = resp.json()
+                if samples:
+                    cols = st.columns([2, 2, 1])
+                    cols[0].write("**Player ID**")
+                    cols[1].write("**Game ID**")
+                    cols[2].write("")
+                    for row in samples:
+                        c0, c1, c2 = st.columns([2, 2, 1])
+                        c0.write(row["player_id"])
+                        c1.write(row["game_id"])
+                        if c2.button("Use", key=f"use_{row['player_id']}_{row['game_id']}"):
+                            st.session_state["player_id"] = row["player_id"]
+                            st.session_state["game_id"] = row["game_id"]
+                            st.rerun()
+                else:
+                    st.caption("No samples available.")
+            else:
+                st.caption("Could not load samples.")
+        except requests.exceptions.RequestException:
+            st.caption("Could not reach /sample endpoint.")
+
     with st.form("predict_form"):
         col1, col2 = st.columns(2)
         with col1:
-            player_id = st.number_input("Player ID", min_value=1, value=8464989, step=1)
+            player_id = st.number_input("Player ID", min_value=1, value=default_player, step=1)
         with col2:
-            game_id = st.number_input("Game ID", min_value=1, value=2018020090, step=1)
+            game_id = st.number_input("Game ID", min_value=1, value=default_game, step=1)
         submitted = st.form_submit_button("Predict")
 
     if submitted:
